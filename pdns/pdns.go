@@ -4,6 +4,7 @@ package pdns
 
 import (
 	"errors"
+	"net/url"
 
 	"github.com/mholt/caddy/caddytls"
 	"github.com/xenolf/lego/providers/dns/pdns"
@@ -23,7 +24,11 @@ func NewDNSProvider(credentials ...string) (caddytls.ChallengeProvider, error) {
 	case 0:
 		return pdns.NewDNSProvider()
 	case 2:
-		return pdns.NewDNSProviderCredentials(credentials[0], credentials[1])
+		url, err := url.Parse(credentials[0])
+		if err != nil {
+			return nil, errors.New("Invalid URL format")
+		}
+		return pdns.NewDNSProviderCredentials(url, credentials[1])
 	default:
 		return nil, errors.New("invalid credentials length")
 	}
